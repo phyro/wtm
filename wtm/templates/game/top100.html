@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title_name %}Main page{% endblock %}
+
+{% block style_home %}class='blue'{% endblock %}
+
+{% block content_main %}
+	<div id='top_100'>
+		<table>
+			</tr>
+				<th>Position:</th><th>Nickname:</th><th>Score:</th><th>Asteroids:</th>
+			</tr>
+			{% set counter = 1 %}
+			{% for player in g.game.get_top100() %}
+				<tr>
+					<td>{{ counter }}</td><td>{{ player.nickname }}</td><td>{{ player.score }}</td><td>{{ player.get_nr_of_asteroids() }}</td>
+				</tr>
+				{% set counter = counter + 1 %}
+			{% endfor %}
+		</table>
+	</div>
+	
+	<div id='top_10_networks'>
+		<table>
+			</tr>
+				<th>Position:</th><th>Name:</th><th>Score:</th><th>Action:</th>
+			</tr>
+			{% set counter = 1 %}
+			{% for network in g.game.get_top10_networks() %}
+				<tr>
+					<td>{{ counter }}</td><td>{{ network.name }}</td><td>{{ network.get_score() }}</td>
+					{% set player = g.user.get_player(g.game.id) %}
+					{% if player.has_network() %}
+						{% if network.id == player.network_id %}
+							<td><a href="{{ url_for('game.network_leave') }}">Leave!</a></td>
+						{% else %}
+							<td></td>
+						{% endif %}
+					{% else %}
+						<td><a href="">Join!</a></td>
+					{% endif %}
+				</tr>
+				{% set counter = counter + 1 %}
+			{% endfor %}
+		</table>
+	</div>
+{% endblock %}

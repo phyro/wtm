@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title_name %}Main page{% endblock %}
+
+{% block style_home %}class='blue'{% endblock %}
+
+{% block content_main %}
+	<div id="network_main">
+		{% set player = g.user.get_player(g.game.id) %}
+		{% if player.has_network() %}
+			<p><a href="{{ url_for('game.network_leave') }}">Leave!</a></p>
+			<p>TODO: Display network members...</p>
+			{% if player.network.leader_id == player.id %}
+				<p>TODO: Display join requests if leader</p>
+				
+			{% endif %}
+		{% else %}
+			<p><a href="{{ url_for('game.network_create') }}">Create a new network!</a></p>
+		{% endif %}
+		
+	</div>
+{% endblock %}

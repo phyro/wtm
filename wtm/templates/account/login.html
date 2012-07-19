@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block style_login %}class='blue'{% endblock %}
+
+{% block content_main %}
+
+	<p>
+		{% from "macros/_forms.html" import render_errors %}
+		<form id="defForm" method="POST" action="{{ url_for('account.login') }}">
+			<!--<ul>
+			    <li>-->
+			    <table>
+			    	<tr colspan='2'>
+			    		<td>
+			        {{ render_errors(form_login.login) }}
+			        {{ form_login.hidden_tag() }}
+			      </td></tr>
+			        <tr>
+			        	<td>
+			        {{ form_login.login.label }} 
+			        	</td>
+			        	<td>
+			        {{ form_login.login(size=15) }}
+			        	</td></tr>
+			    <!--</li>
+			
+			    <li>-->
+			    	<tr colspan='2'>
+			    		<td>
+			        {{ render_errors(form_login.password) }}
+			      </td></tr>
+			      <tr>
+			        	<td>
+			        {{ form_login.password.label }} 
+			        	</td>
+			        	<td>
+			        {{ form_login.password(size=15) }}
+			        	</td>
+			        	</tr>
+			    <!--</li>
+			    <li>-->
+			    	<tr colspan='2'>
+			    		<td>
+			    		{{ form_login.submit }}
+			    		</td>
+			    	</tr>
+			        
+			    <!--</li>-->
+			    </table>
+			<!--</ul>-->
+		</form>
+	</p>
+{% endblock %}

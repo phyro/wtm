@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title_name %}Main page{% endblock %}
+
+{% block style_home %}class='blue'{% endblock %}
+
+{% block content_main %}
+	<form id="defForm" method="POST" action="{{ url_for('game.network_create') }}">
+		<ul>
+		    <li>
+		        {{ render_errors(form.name) }}
+		        {{ form.hidden_tag() }}
+		        {{ form.name.label }}<br />
+		        {{ form.name(size=35) }}
+		    </li>
+		    <!--
+		    <script type="text/javascript">
+	            CKEDITOR.replace( 'review_content' );
+	        </script>
+	       -->
+		    <li>
+		        {{ form.submit }}
+		    </li>
+		</ul>
+	</form>
+{% endblock %}

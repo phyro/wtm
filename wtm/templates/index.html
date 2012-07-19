@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title_name %}Main page{% endblock %}
+
+{% block style_home %}class='blue'{% endblock %}
+
+{% block content_main %}
+	<div id='hometext'>
+		{% if g.user %}
+			<!-- Display all games -->
+			<div id="games_list">
+				<table>
+					</tr>
+						<th>Game</th><th>Option</th><th>Tick time</th>
+					</tr>
+					{% for cur_game in all_games %}
+						<tr>
+							<td>{{ cur_game.name }}</td>
+							{% if g.user.has_player(cur_game.id) %}
+								<td><a href="{{ url_for('frontend.play_game', game_id=cur_game.id) }}">Play!</a></td>
+							{% else %}
+								<td><a href="{{ url_for('frontend.join_game', game_id=cur_game.id) }}">Join!</a></td>
+							{% endif %}
+							<td>{{ cur_game.tick }}</td>
+						</tr>
+					{% endfor %}
+				</table>
+			</div>
+		{% else %}
+			<p>
+				Please login to join a game.
+			</p>
+		{% endif %}
+		
+	</div>
+{% endblock %}
