@@ -6,7 +6,11 @@ import datetime
 
 
 
-
+#ManyToMany (Player-NetworkInvite) table
+player_networkinvite = Table('player_networkinvite', Base.metadata,
+    Column('player_id', Integer, ForeignKey('Player.id', onupdate="CASCADE", ondelete="CASCADE")),
+    Column('network_id', Integer, ForeignKey('Network.id', onupdate="CASCADE", ondelete="CASCADE"))
+)
 
 class Game(Base):
     """Defines a game. A game has start date, end date, players, etc."""
@@ -52,7 +56,8 @@ class Game(Base):
     def get_top10_networks(self):
         """Returns a list of top10 networks."""
         return sorted(self.networks, key=lambda x: sum([cur_player.score for cur_player in x.players]))[:10]
-    
+
+
 class Network(Base):
     """Defines a network of players."""
     
@@ -62,6 +67,7 @@ class Network(Base):
     leader_id = Column(Integer)
     
     players = relationship("Player", backref=backref('network'))
+    invites = relationship("Player", secondary=player_networkinvite, backref=backref('invites'))
     game_id = Column(Integer, ForeignKey('Game.id'))
     
     #------------------------------------------------------------------------
@@ -86,19 +92,45 @@ class Network(Base):
         """Adds a player to the network (if possible)."""
         #TODO: Check if that player even exists.
         #TODO: SERIOUSLY? YOU'LL RETURN STRINGS? LOL NOOB.
-        network_players = [player.id for player in self.players]
-        if player_id not in network_players:
+        try:
             from wtm.models.User import Player  #TODO: VERY UGLY; DAMN CIRCULAR IMPORTS. REFACTOR? :O
             new_player = Player.query.filter_by(id = player_id).first()
             self.players.append(new_player)
             db_session.add(self)
             db_session.commit()
-            return (True, "")
-        else:
-            return (False, "Already in a network")
+            status, err = self.remove_invite(new_player)
+            if status:
+                return (True, "")
+            else:
+                return (False, "GOSH, couldnt remove invite?")
+        except:
+            return (False, "GOSH, something went wrong :O, add_player.")
     
     def get_score(self):
         """Returns a score of the network."""
         return sum( [player.score for player in self.players] )
 
+    def invite(self, player_id):
+        """Invite a player with specified id.
+        Before doing this, check if leader sent request and if player doesn't have network."""
+        from wtm.models.User import Player  #TODO: VERY UGLY; DAMN CIRCULAR IMPORTS. REFACTOR? :O
+        player = Player.query.filter(Player.id == player_id).first()
+        self.invites.append(player)
+        db_session.add(self)
+        db_session.commit()
 
+    def is_full(self):
+        """Returns True if the network is full, False otherwise."""
+        game = Game.query.filter(Game.id == self.game_id).first()
+        max_players = game.max_network_size
+        return len([network_player for network_player in self.players]) == max_players
+    
+    def remove_invite(self, player):
+        """Removes the invite for a player with specified id."""
+        try:
+            self.invites.remove(player)
+            db_session.add(self)
+            db_session.commit()
+            return (True, "")
+        except:
+            return (False, "Player had no invitation.")

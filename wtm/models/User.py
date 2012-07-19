@@ -6,11 +6,6 @@ from wtm.models.Game import Game, Network
 
 
 
-#ManyToMany (Player-NetworkInvite) table
-player_networkinvite = Table('player_networkinvite', Base.metadata,
-    Column('player_from_id', Integer, ForeignKey('Player.id', onupdate="CASCADE", ondelete="CASCADE")),
-    Column('player_to_id', Integer, ForeignKey('Player.id', onupdate="CASCADE", ondelete="CASCADE"))
-)
 
 class User(Base):
     """Defines a user. User can join a game (become a player)."""
@@ -158,18 +153,20 @@ class Player(Base):
         """Returns a list of attacks that are set on me."""
         raise NotImplementedError, "Not yet..."
     
+    def get_nr_of_asteroids(self):
+        """Returns the number of asteroids the player has."""
+        return self.asteroids_free + self.asteroids_gold + self.asteroids_metal
+    
+    #---------------------------- Network Methods --------------------------------------
+    
     def get_network_attacks(self):
         """Returns a list of attacks in whole my network."""
         #If player not in a network, error
         raise NotImplementedError, "Not yet..."
     
-    def get_nr_of_asteroids(self):
-        """Returns the number of asteroids the player has."""
-        return self.asteroids_free + self.asteroids_gold + self.asteroids_metal
     
     def create_network(self, name):
         """Create a new network."""
-        #TODO: SERIOUSLY? YOU'LL RETURN A STRING? LOL NOOB.
         if self.network_id != None:
             return (False, "In a network")
         else:
@@ -199,4 +196,52 @@ class Player(Base):
         db_session.add(self)
         db_session.commit()
         
+    def invite_network(self, player_id):
+        """Player invites another play in a network."""
+        #Check if player inviting is the leader of the network
+        network = Network.query.filter(Network.id == self.network_id).first()
+        if network.leader_id != self.id:
+            return (False, "You are not the leader of the network")
+        
+        #If it is, check if the invited player exists and is already in a network
+        player = Player.query.filter(Player.id == player_id).first()
+        if not player:
+            return (False, "Player with this id, does not exist")
+        if player.has_network():
+            return (False, "This player is already in a network")    
+        
+        #Check if network is full
+        if network.is_full():
+            return (False, "Your network is full")
+        
+        #Everything appears ok, invite him
+        network.invite(player_id)
+        
+        return (True, "")
     
+    def join_network(self, network_id):
+        """Player joins a network with specified id."""
+        network = Network.query.filter(Network.id == network_id).first()
+        #If player is in a network, he can't join
+        if self.has_network():
+            return (False, "You are already in a network and can't join one")
+        #Check if network is full
+        if network.is_full():
+            return (False, "Your network is full")
+        
+        status, err = network.add_player(self.id)
+        if status:
+            return (True, "")
+        else:
+            return (False, u"%s" %(err))
+        
+    def deny_network(self, network_id):
+        """Player denies an invitation to join a network."""
+        try:
+            network = Network.query.filter(Network.id == network_id).first()
+            self.invites.remove(network)
+            db_session.add(self)
+            db_session.commit()
+            return (True, "")
+        except:
+            return (False, "Network invitation cant be denied?")
