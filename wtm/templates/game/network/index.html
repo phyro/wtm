@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "game/base.html" %}
 
 {% block title_name %}Main page{% endblock %}
 
@@ -9,13 +9,31 @@
 		{% set player = g.user.get_player(g.game.id) %}
 		{% if player.has_network() %}
 			<p><a href="{{ url_for('game.network_leave') }}">Leave!</a></p>
-			<p>TODO: Display network members...</p>
+			<p>Network members:</p>
+			
+			{% for network_player in player.network.players %}
+				<p>
+					{{ network_player.nickname }}
+					{% if network_player.id == player.network.leader_id %}
+						Leader!
+					{% endif %}
+				</p>
+			{% endfor %}
 			{% if player.network.leader_id == player.id %}
-				<p>TODO: Display join requests if leader</p>
-				
+				<p>Pending invites:</p>
+				{% for invite in player.network.invites %}
+					<p>{{ invite.nickname }}</p>
+				{% endfor %}
 			{% endif %}
 		{% else %}
 			<p><a href="{{ url_for('game.network_create') }}">Create a new network!</a></p>
+			<p>Invites:</p>
+			{% for join_request in player.invites %}
+				<p>{{ join_request.name }}
+					<a href="{{ url_for('game.network_invite_accept', network_id=join_request.id) }}">Accept!</a>
+					<a href="{{ url_for('game.network_invite_deny', network_id=join_request.id) }}">Deny!</a>
+				</p>
+			{% endfor %}
 		{% endif %}
 		
 	</div>

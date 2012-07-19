@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "game/base.html" %}
 
 {% block title_name %}Main page{% endblock %}
 
@@ -8,12 +8,23 @@
 	<div id='top_100'>
 		<table>
 			</tr>
-				<th>Position:</th><th>Nickname:</th><th>Score:</th><th>Asteroids:</th>
-			</tr>
+				<th>Position:</th><th>Nickname:</th><th>Score:</th><th>Asteroids:</th><th>Network</th>
+	</tr>
+			<!-- TODO: this (get myself) code needs some makeup -->
+			{% set my_player = g.user.get_player(g.game.id) %}
 			{% set counter = 1 %}
 			{% for player in g.game.get_top100() %}
 				<tr>
 					<td>{{ counter }}</td><td>{{ player.nickname }}</td><td>{{ player.score }}</td><td>{{ player.get_nr_of_asteroids() }}</td>
+					<td>
+						<!-- if i have a network + if player is not in a network + dont invite yourself (redundant, impossible scenario)-->
+						{% if my_player.network_id and not player.network_id and player.id != my_player.id %}
+							<a href="{{ url_for('game.network_invite', player_id=player.id) }}">Invite!</a>
+						{% endif %}
+						{% if player.network_id %}
+							{{ player.network.name }}
+						{% endif %}
+					</td>
 				</tr>
 				{% set counter = counter + 1 %}
 			{% endfor %}
@@ -36,8 +47,6 @@
 						{% else %}
 							<td></td>
 						{% endif %}
-					{% else %}
-						<td><a href="">Join!</a></td>
 					{% endif %}
 				</tr>
 				{% set counter = counter + 1 %}

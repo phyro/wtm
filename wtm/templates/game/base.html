@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block topnav %}
+    <ol>
+		<li><a href="{{ url_for('game.index') }}" {% block style_home %}{% endblock %}>Home</a></li>
+		{% if g.user %}
+			{% if g.user.usertype == "admin" %}
+				<li><a href="" {% block style_add_dev %}{% endblock %}>Admin only</a></li>
+			{% endif %}
+			<li><a href="{{ url_for('game.network') }}">Network</a></li>
+			<li><a href="{{ url_for('account.logout') }}">Logout({{ g.user.username }})</a></li>
+		{% else %}
+			<li><a href="{{ url_for('account.login') }}" {% block style_login %}{% endblock %}>Login</a></li>
+		{% endif %}
+	</ol>
+{% endblock %}
