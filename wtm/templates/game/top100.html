@@ -43,7 +43,11 @@
 					{% set player = g.user.get_player(g.game.id) %}
 					{% if player.has_network() %}
 						{% if network.id == player.network_id %}
-							<td><a href="{{ url_for('game.network_leave') }}">Leave!</a></td>
+							{% if network.leader_id == player.id %}
+								<td><a href="{{ url_for('game.network_leave') }}">Disband network!</a></td>
+							{% else %}
+								<td><a href="{{ url_for('game.network_leave') }}">Leave!</a></td>
+							{% endif %}
 						{% else %}
 							<td></td>
 						{% endif %}
