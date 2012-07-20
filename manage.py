@@ -2,6 +2,8 @@ from flask.ext.script import Manager
 from wtm.models import *
 from wtm import create_app
 from wtm.database import Base, engine, db_session
+from wtm.helpers import PLAYER_PERM, ADMIN_PERM
+from wtm.exceptions import ALL_EXCEPTIONS
 
 import datetime
 
@@ -16,9 +18,9 @@ def initdb():
     Base.metadata.create_all(bind=engine)
     
     
-    admin = User("admin", "admin", "boris", "bogdanovich", "admin")
-    test_user = User("primi", "primi", "milivoj", "novakovic", "user")
-    test_user2 = User("tomi", "tomi", "milivoj", "novakovic", "user")
+    admin = User("admin", "admin", "boris", "bogdanovich", 200)
+    test_user = User("primi", "primi", "milivoj", "novakovic", 100)
+    test_user2 = User("tomi", "tomi", "milivoj", "novakovic", 100)
     db_session.add(admin)
     db_session.add(test_user)
     db_session.add(test_user2)
@@ -50,7 +52,10 @@ def initdb():
     
     
     #Make a network
-    status, err = p2.create_network(u"Testna zveza")
+    try:
+        p2.create_network(u"Testna zveza")
+    except ALL_EXCEPTIONS as e:
+        print e.as_console_output()
     
 
 

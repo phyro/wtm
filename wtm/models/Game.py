@@ -2,6 +2,7 @@
 from sqlalchemy import Column, Integer, String, func, or_, and_,DateTime, ForeignKey, Table
 from sqlalchemy.orm import relationship, backref
 from wtm.database import db_session, Base
+from wtm.exceptions import NetworkBadRemoveInvite, NetworkBadAddPlayer, ALL_EXCEPTIONS, UnknownGameException
 import datetime
 
 
@@ -78,7 +79,7 @@ class Network(Base):
     def __init__(self, name, leader_id):
         self.name = name
         self.leader_id = leader_id
-        self.add_player(leader_id)
+        self.add_player(leader_id, network_created=True)
 
     def __repr__(self):
         return self.name
@@ -88,7 +89,7 @@ class Network(Base):
     #------------------------------------------------------------------------
     
     
-    def add_player(self, player_id):
+    def add_player(self, player_id, network_created=False):
         """Adds a player to the network (if possible)."""
         #TODO: Check if that player even exists.
         #TODO: SERIOUSLY? YOU'LL RETURN STRINGS? LOL NOOB.
@@ -98,13 +99,17 @@ class Network(Base):
             self.players.append(new_player)
             db_session.add(self)
             db_session.commit()
-            status, err = self.remove_invite(new_player)
-            if status:
-                return (True, "")
-            else:
-                return (False, "GOSH, couldnt remove invite?")
+            if not network_created: #If a player joined a network (didnt create one), remove his invitations
+                try:
+                    self.remove_invite(new_player)
+                    new_player.deny_all_network_invites()
+                except ALL_EXCEPTIONS as e:
+                    raise e
+        
+        except ALL_EXCEPTIONS as e:
+            raise e
         except:
-            return (False, "GOSH, something went wrong :O, add_player.")
+            raise UnknownGameException
     
     def get_score(self):
         """Returns a score of the network."""
@@ -128,9 +133,11 @@ class Network(Base):
     def remove_invite(self, player):
         """Removes the invite for a player with specified id."""
         try:
+            if player not in self.invites:
+                raise NetworkBadRemoveInvite
             self.invites.remove(player)
             db_session.add(self)
             db_session.commit()
-            return (True, "")
-        except:
-            return (False, "Player had no invitation.")
+        
+        except NetworkBadRemoveInvite as e:
+            raise e
