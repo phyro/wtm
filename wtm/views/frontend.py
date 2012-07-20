@@ -14,7 +14,6 @@ frontend = Blueprint('frontend', __name__)
 
 @frontend.route("/", methods=("GET", "POST"))
 def index():
-    print "LALA2asdasda"
     all_games = Game.get_all_games()
     return render_template("index.html", all_games=all_games)
 

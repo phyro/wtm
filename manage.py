@@ -18,9 +18,9 @@ def initdb():
     Base.metadata.create_all(bind=engine)
     
     
-    admin = User("admin", "admin", "boris", "bogdanovich", 200)
-    test_user = User("primi", "primi", "milivoj", "novakovic", 100)
-    test_user2 = User("tomi", "tomi", "milivoj", "novakovic", 100)
+    admin = User("admin", "admin", "boris", "bogdanovich", ADMIN_PERM)
+    test_user = User("primi", "primi", "milivoj", "novakovic", PLAYER_PERM)
+    test_user2 = User("tomi", "tomi", "milivoj", "novakovic", PLAYER_PERM)
     db_session.add(admin)
     db_session.add(test_user)
     db_session.add(test_user2)

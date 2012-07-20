@@ -92,7 +92,6 @@ class Network(Base):
     def add_player(self, player_id, network_created=False):
         """Adds a player to the network (if possible)."""
         #TODO: Check if that player even exists.
-        #TODO: SERIOUSLY? YOU'LL RETURN STRINGS? LOL NOOB.
         try:
             from wtm.models.User import Player  #TODO: VERY UGLY; DAMN CIRCULAR IMPORTS. REFACTOR? :O
             new_player = Player.query.filter_by(id = player_id).first()

@@ -232,11 +232,9 @@ class Player(Base):
         #If player is in a network, he can't join
         if self.has_network():
             raise NetworkAlreadyInNetwork
-            #return (False, u"You are already in a network and can't join one")
         #Check if network is full
         if network.is_full():
             raise NetworkIsFull
-            #return (False, u"Your network is full")
         
         try:
             network.add_player(self.id)
