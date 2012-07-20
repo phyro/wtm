@@ -75,14 +75,6 @@ def network_create():
 def network_invite(player_id):
     """Player (leader of a network) sends an invite to another player."""
     player = g.user.get_player(g.game.id)
-    """status, err = player.invite_network(player_id)
-    if status:
-        flash(u"You have successfully invited a player to join your network.", "notice")
-    else:
-        flash(u"An error occured: %s" %(err), "warning")
-    
-    return redirect(url_for("game.network"))
-    """
     try:
         player.invite_network(player_id)
         flash(u"You have successfully invited a player to join your network.", "notice")
