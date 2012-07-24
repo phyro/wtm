@@ -1,0 +1,38 @@
+{% extends "game/base.html" %}
+
+{% block title_name %}Researches{% endblock %}
+
+{% block style_home %}class='blue'{% endblock %}
+
+{% block content_main %}
+	<div id="buildings_main">
+		<table>
+			<tr>
+				<td>Name:</td><td>Description:</td><td>ETA:</td><td>Build:</td>
+			</tr>
+			{% for (building,(can_build, is_built, is_building)) in all_buildings %}
+
+				<tr>
+					<td>{{building.name}}</td>
+					<td>{{building.description}}</td>
+					<td>{{building.ticks_to_complete}}</td>
+					<td>
+						{% if is_building %}
+							Building... TODO: show eta
+						{% endif %}
+						{% if is_built %}
+							Done
+						{% endif %}
+						{% if can_build and not is_built and not is_building %}
+							<a href="{{ url_for('game.start_building', dep_pos=building.dep_pos) }}">Start building</a>
+						{% endif %}
+						{% if not is_building and not is_built and not can_build %}
+							Can't build
+						{% endif %}
+					</td>
+				</tr>
+			{% endfor %}
+		</table>	
+		
+	</div>
+{% endblock %}
